@@ -1,8 +1,7 @@
-from TTS.api import TTS
-import torch
-import argparse
-import sys
-import os
+
+# import argparse
+# import sys
+# import os
 print("Imports done")
 
 base_params = {
@@ -16,6 +15,9 @@ tts = None
 
 
 def init_tts():
+    print("Starting imports")
+    from TTS.api import TTS
+    import torch
     print("Get device")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Init TTS")
@@ -55,7 +57,55 @@ def parse(text):
     return sent_tokenize(text)
 
 
+base_template = """Question: {question}
+
+    Answer: """
+
+
+def local_llm(question, template=base_template):
+    from langchain.llms.huggingface_pipeline import HuggingFacePipeline
+    hf = HuggingFacePipeline.from_model_id(
+        model_id="microsoft/DialoGPT-medium", task="text-generation", pipeline_kwargs={"max_new_tokens": 200, "pad_token_id": 50256},
+    )
+    from langchain.prompts import PromptTemplate
+    prompt = PromptTemplate.from_template(template)
+    chain = prompt | hf
+
+    return chain.invoke({"question": question})
+
+
+def get_coordinates(doc_dir):
+    return
+
+
+def read_document(doc_dir):
+    # we read the doc into blocks
+    # then we use some coordinates to ensure we only get the blocks within an area
+    # that we actually want
+    import pymupdf
+
+    doc = ""
+
+    # out = open("output.txt", "wb")  # create a text output
+    for page in pymupdf.open(doc_dir):  # iterate the document pages
+        blocks = page.get_text("blocks")  # Get text blocks with positions
+
+        # .encode("utf8")  # get plain text (is in UTF-8)
+        doc += page.get_text()
+    # out.close()
+    print(doc)
+
+
 def main():
+
+    # local llm
+    local_llm()
+    return
+    # document parsing
+    read_document("ocr/Narrative-As-Virtual-Reality.pdf")
+
+    return
+# tts systems
     tts = init_tts()
 
     eg = "hey, it's me: mark cousins dot wav. i'm here to tell you about movies and shit."
@@ -69,6 +119,7 @@ def main():
                 output="out/{i}.wav".format(i=i))
 
     return
+# other shit for running later
     parser = argparse.ArgumentParser(description="CLI Tool")
     parser.add_argument("input", help="Input file")
     parser.add_argument("-o", "--output", help="Output file")
