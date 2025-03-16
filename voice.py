@@ -1,13 +1,15 @@
 
 # import argparse
 # import sys
-# import os
+from pathlib import Path
+import os
 print("Imports done")
 
 base_params = {
     "model_name": "tts_models/multilingual/multi-dataset/xtts_v2",
     "speaker_wav": "samples/storyoffilm.wav",
     "language_idx": "en",
+    "title": ""
 }
 
 
@@ -80,49 +82,155 @@ def get_coordinates(doc_dir):
     return
 
 
-def read_document(doc_dir):
+def read_document(doc_dir, job_path):
     # we read the doc into blocks
     # then we use some coordinates to ensure we only get the blocks within an area
     # that we actually want
     import pymupdf
     import random
 
-    doc = []
+    # doc = []
 
-    # out = open("output.txt", "wb")  # create a text output
-    for page in pymupdf.open(doc_dir):  # iterate the document pages
-        blocks = page.get_text("blocks")  # Get text blocks with positions
-        doc += [x[4] for x in blocks]
-    return doc
+    # # out = open("output.txt", "wb")  # create a text output
+    # for page in pymupdf.open(doc_dir):  # iterate the document pages
+    #     blocks = page.get_text("blocks")  # Get text blocks with positions
+    #     doc += [x[4] for x in blocks]
+    # return doc
+    # from langchain_community.document_loaders import PyPDFLoader
+
+    # loader = PyPDFLoader(doc_dir)
+    # pages = []
+    # for page in loader.lazy_load():
+    #     pages.append(page)
+    # print(pages[200].page_content)
+
+    from langchain.text_splitter import MarkdownTextSplitter
+    import json
+    pre_processed_file = f"{job_path}/pre_processed.md"
+    processed_file = f"{job_path}/processed.md"
+    if not os.path.exists(processed_file):
+        print("processed_file does not exist")
+        if not os.path.exists(pre_processed_file):
+            print("pre_processed does not exist")
+            import pymupdf4llm
+            md_text = pymupdf4llm.to_markdown(doc_dir, page_chunks=True)
+            dic = ""
+            for page in md_text:
+                dic += page["text"]
+
+            write_file(pre_processed_file, dic)
+
+        import re
+        pattern = r"(.*(||||||||||).*\n\n|\n+-----\n)"
+
+        document = read_file(pre_processed_file)
+
+        match = re.findall(pattern, document)
+        print(len(match))
+        document = re.sub(pattern, "", document)
+        match = re.findall(pattern, document)
+        print(len(match))
+        if match:
+            print("Match found:")
+            # for x in match:
+            #     print(x)
+            print(len(match))
+        else:
+            print("否 match.")
+
+        print("processing lines for easy consuption")
+        n = ""
+        for line in document.splitlines():
+            if "#" in line:
+                n += "\n\n" + line.strip() + "\n"
+            else:
+                n += line.strip() + " "
+        document = n
+
+        print("adding read assist markers")
+        changes = [("######", "Subheading:"),
+                   ("#####", "Minor Section Title:"),
+                   ("####", "Sub-subsection Title:"),
+                   ("###", "Subsection Title:"),
+                   ("##", "Section Title:"),
+                   ("#", "Title:"),
+                   ("\*\*\*", ""),
+                   ]
+
+        for (pattern, sub) in changes:
+            document = re.sub(pattern, sub, document)
+
+        write_file(processed_file, "\n".join(parse(document)))
+    document = read_file(processed_file)
+    return parse(document)
+
+
+path_base = "./output/"
+
+
+def prep_job(job_title):
+    print("prep_job", job_title)
+    folder_path = Path(path_base+f"{job_title}")
+    folder_path.mkdir(parents=True, exist_ok=True)
+    return folder_path
+
+
+def get_last_file(job_title):
+    print("get_last_file", job_title)
+    folder_path = Path(path_base+f"{job_title}")
+    wav_files = sorted(folder_path.glob("*.wav"))
+    if wav_files:
+        last_file = wav_files[-1]
+        return int(last_file.stem)  # Return just the number (stem)
+    return None  # 否 files found
 
 
 def main():
     start_page = 11
     end_page = 12
+    filename = "ocr/Narrative-As-Virtual-Reality.pdf"
+    job_title = Path(filename).stem
+
+    path = prep_job(job_title)
+    # output making
+    # return
 
     # local llm
     # x = local_llm("how old is the earth?")
     # print(x)
     # return
     # document parsing
-    doc = read_document("ocr/Narrative-As-Virtual-Reality.pdf")
-    doc = doc[start_page:end_page+1]
+    parsed_text = read_document(filename, path)
+    # print(len(doc))
+    # doc = doc[start_page:end_page+1]
 
     # print(''.join(doc))
-
     return
-# tts systems
-    tts = init_tts()
 
-    eg = "hey, it's me: mark cousins dot wav. i'm here to tell you about movies and shit."
-    i = 0
-    parsed_text = parse(eg)
+# tts systems
+
+    # start_position = 0
+    # end_position = len(parsed_text)-1
+    start_position = 3010
+    end_position = 3013
+    # parsed_text = parsed_text[3001:3010]
     print("Recieved", len(parsed_text), "parsed slices")
+    last = get_last_file(job_title)
+    if (last):
+        print("resuming from last position", last)
+        start_position = last
+    i = start_position
+    print("Processing", end_position-start_position, "items")
+    print(path)
+    # return
+    tts = init_tts()
     for text in parsed_text:
         i += 1
+        if i > end_position:
+            break
         print("Running slice", i)
         run_tts(tts=tts, text=text,
-                output="out/{i}.wav".format(i=i))
+                output="{path}/{i}.wav".format(i=i, path=path))
 
     return
 # other shit for running later
