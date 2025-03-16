@@ -185,12 +185,19 @@ def get_last_file(job_title):
     return None  # 否 files found
 
 
+def ask_definition(string):
+    template = """You are part of a TTS system. You will be given a chunk of text and your job is to help the user understand the definition of complex words.
+When you recieve text, assess which word in the sentence is the most complicated, then give the defintion for that word.
+If you aren't sure or if none of the words seem complex, then just reply with 'How do you not know'
+
+Here is the text, define the most complex word here: `{question}`
+"""
+    print(local_llm(string, template))
+
+
 def main():
-    start_page = 11
-    end_page = 12
     filename = "ocr/Narrative-As-Virtual-Reality.pdf"
     job_title = Path(filename).stem
-
     path = prep_job(job_title)
     # output making
     # return
@@ -205,14 +212,17 @@ def main():
     # doc = doc[start_page:end_page+1]
 
     # print(''.join(doc))
-    return
 
-# tts systems
+    # tts systems
 
     # start_position = 0
     # end_position = len(parsed_text)-1
     start_position = 3010
     end_position = 3013
+
+    ask_definition(parsed_text[start_position])
+
+    return
     # parsed_text = parsed_text[3001:3010]
     print("Recieved", len(parsed_text), "parsed slices")
     last = get_last_file(job_title)
