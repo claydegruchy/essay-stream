@@ -12,7 +12,3 @@
 
 
 ## ocr
-- `pip3.11 install nougat-ocr`
-- `pip3.11 install albumentations==1.0.0`
-- `pip install transformers==4.38.2`
-- `nougat in.pdf -o ocr/out/`
