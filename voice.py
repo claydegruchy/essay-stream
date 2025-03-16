@@ -7,7 +7,7 @@ print("Imports done")
 
 base_params = {
     "model_name": "tts_models/multilingual/multi-dataset/xtts_v2",
-    "speaker_wav": "samples/storyoffilm.wav",
+    "speaker_wav": "samples/Favourite Poems by Derek Jacobi [x4ONi1ROGH8].wav",
     "language_idx": "en",
     "title": ""
 }
@@ -65,12 +65,17 @@ base_template = """Question: {question}
     Answer: """
 
 
-def local_llm(question, template=base_template):
+def init_llm():
     print("Starting local llm")
     from langchain.llms.huggingface_pipeline import HuggingFacePipeline
     hf = HuggingFacePipeline.from_model_id(
         model_id=llm_model_id, task="text-generation", pipeline_kwargs={"max_new_tokens": 200, "pad_token_id": 50256},
     )
+    return hf
+
+
+def run_llm(hf, question, template=base_template):
+    print("running local llm")
     from langchain.prompts import PromptTemplate
     prompt = PromptTemplate.from_template(template)
     chain = prompt | hf
@@ -176,7 +181,6 @@ def prep_job(job_title):
 
 
 def get_last_file(job_title):
-    print("get_last_file", job_title)
     folder_path = Path(path_base+f"{job_title}")
     wav_files = sorted(folder_path.glob("*.wav"))
     if wav_files:
@@ -185,14 +189,15 @@ def get_last_file(job_title):
     return None  # 否 files found
 
 
-def ask_definition(string):
+def ask_definition(string, hf=init_llm()):
+    print("ask_definition")
     template = """You are part of a TTS system. You will be given a chunk of text and your job is to help the user understand the definition of complex words.
 When you recieve text, assess which word in the sentence is the most complicated, then give the defintion for that word.
 If you aren't sure or if none of the words seem complex, then just reply with 'How do you not know'
 
 Here is the text, define the most complex word here: `{question}`
 """
-    print(local_llm(string, template))
+    print(run_llm(hf, string, template))
 
 
 def main():
@@ -203,7 +208,7 @@ def main():
     # return
 
     # local llm
-    # x = local_llm("how old is the earth?")
+    # x = run_llm("how old is the earth?")
     # print(x)
     # return
     # document parsing
@@ -217,27 +222,21 @@ def main():
 
     # start_position = 0
     # end_position = len(parsed_text)-1
-    start_position = 3010
-    end_position = 3013
+    start_position = 2500
+    end_position = start_position+4
 
-    ask_definition(parsed_text[start_position])
-
-    return
+    # return
     # parsed_text = parsed_text[3001:3010]
     print("Recieved", len(parsed_text), "parsed slices")
     last = get_last_file(job_title)
-    if (last):
+    if (last and last > start_position and last < end_position):
         print("resuming from last position", last)
         start_position = last
     i = start_position
-    print("Processing", end_position-start_position, "items")
-    print(path)
+    print("Processing", len(parsed_text[start_position:end_position]), "items")
     # return
     tts = init_tts()
-    for text in parsed_text:
-        i += 1
-        if i > end_position:
-            break
+    for text in parsed_text[start_position:end_position]:
         print("Running slice", i)
         run_tts(tts=tts, text=text,
                 output="{path}/{i}.wav".format(i=i, path=path))
