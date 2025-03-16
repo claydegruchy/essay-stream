@@ -92,28 +92,23 @@ def read_document(doc_dir):
     # out = open("output.txt", "wb")  # create a text output
     for page in pymupdf.open(doc_dir):  # iterate the document pages
         blocks = page.get_text("blocks")  # Get text blocks with positions
-        sample = random.sample(blocks, min(len(blocks), 5))
-        sample = [x[4] for x in sample]
-        doc += [blocks, sample]
-        # print(select)
-
-        # .encode("utf8")  # get plain text (is in UTF-8)
-        # doc += page.get_text()
-    # out.close()
-    print(doc)
-
+        doc += [x[4] for x in blocks]
     return doc
 
 
 def main():
+    start_page = 11
+    end_page = 12
 
     # local llm
     # x = local_llm("how old is the earth?")
     # print(x)
     # return
-
     # document parsing
-    read_document("ocr/Narrative-As-Virtual-Reality.pdf")
+    doc = read_document("ocr/Narrative-As-Virtual-Reality.pdf")
+    doc = doc[start_page:end_page+1]
+
+    # print(''.join(doc))
 
     return
 # tts systems
