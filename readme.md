@@ -12,4 +12,5 @@
 - `sh run.sh`
 
 
-## ocr
+## llm
+models are stored in `~/.cache/huggingface/hub/`. dont use `models--microsoft--DialoGPT-medium` its the stupidest fuck on the planet earth

@@ -57,15 +57,17 @@ def parse(text):
     return sent_tokenize(text)
 
 
+llm_model_id = "Qwen/Qwen2.5-1.5B"
 base_template = """Question: {question}
 
     Answer: """
 
 
 def local_llm(question, template=base_template):
+    print("Starting local llm")
     from langchain.llms.huggingface_pipeline import HuggingFacePipeline
     hf = HuggingFacePipeline.from_model_id(
-        model_id="microsoft/DialoGPT-medium", task="text-generation", pipeline_kwargs={"max_new_tokens": 200, "pad_token_id": 50256},
+        model_id=llm_model_id, task="text-generation", pipeline_kwargs={"max_new_tokens": 200, "pad_token_id": 50256},
     )
     from langchain.prompts import PromptTemplate
     prompt = PromptTemplate.from_template(template)
@@ -83,24 +85,33 @@ def read_document(doc_dir):
     # then we use some coordinates to ensure we only get the blocks within an area
     # that we actually want
     import pymupdf
+    import random
 
-    doc = ""
+    doc = []
 
     # out = open("output.txt", "wb")  # create a text output
     for page in pymupdf.open(doc_dir):  # iterate the document pages
         blocks = page.get_text("blocks")  # Get text blocks with positions
+        sample = random.sample(blocks, min(len(blocks), 5))
+        sample = [x[4] for x in sample]
+        doc += [blocks, sample]
+        # print(select)
 
         # .encode("utf8")  # get plain text (is in UTF-8)
-        doc += page.get_text()
+        # doc += page.get_text()
     # out.close()
     print(doc)
+
+    return doc
 
 
 def main():
 
     # local llm
-    local_llm()
-    return
+    # x = local_llm("how old is the earth?")
+    # print(x)
+    # return
+
     # document parsing
     read_document("ocr/Narrative-As-Virtual-Reality.pdf")
 
