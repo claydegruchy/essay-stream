@@ -3,27 +3,30 @@ import torch
 import argparse
 import sys
 import os
+print("Imports done")
 
-params = {
+base_params = {
     "model_name": "tts_models/multilingual/multi-dataset/xtts_v2",
-    "speaker_wav": "samples/DerekJacobi.wav",
+    "speaker_wav": "samples/storyoffilm.wav",
     "language_idx": "en",
 }
 
 
-def init_tts():
+tts = None
 
+
+def init_tts():
     print("Get device")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Init TTS")
-    tts = TTS(params["model_name"]).to(device)
+    return TTS(base_params["model_name"]).to(device)
 
 
-def tts(text, output="out.wav", emotion="neutral"):
+def run_tts(tts, text, output="out.wav", emotion="neutral"):
     print("tts...", text, output)
 
     params = {
-        **params,
+        **base_params,
         "text": text,
         "out_path": output,
         "emotion": emotion
@@ -33,13 +36,6 @@ def tts(text, output="out.wav", emotion="neutral"):
     # print(TTS().list_models())
 
     print("Run TTS")
-    # Text to speech list of amplitude values as output
-    # wav = tts.tts(
-    # text=text,
-    #   speaker_wav=params["speaker_wav"],
-    #               language=params["language_idx"],
-    #               file_path="out.wav"
-    #               )
     # Text to speech to a file
     tts.tts_to_file(
         text=text,
@@ -48,16 +44,6 @@ def tts(text, output="out.wav", emotion="neutral"):
         file_path=params["out_path"],
         emotion=params["emotion"]
     )
-
-
-def read_file(filepath):
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return f.read()
-
-
-def write_file(filepath, content):
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write(content)
 
 
 def parse(text):
@@ -70,14 +56,17 @@ def parse(text):
 
 
 def main():
+    tts = init_tts()
 
-    init_tts()
-    eg = 'its me, derek jacobi!'
+    eg = "hey, it's me: mark cousins dot wav. i'm here to tell you about movies and shit."
     i = 0
-    for text in parse(eg):
+    parsed_text = parse(eg)
+    print("Recieved", len(parsed_text), "parsed slices")
+    for text in parsed_text:
         i += 1
-        tts(text=text,
-            output="out/{i}.wav".format(i=i))
+        print("Running slice", i)
+        run_tts(tts=tts, text=text,
+                output="out/{i}.wav".format(i=i))
 
     return
     parser = argparse.ArgumentParser(description="CLI Tool")
@@ -99,6 +88,16 @@ def main():
         return
 
     parse(content)
+
+
+def read_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+def write_file(filepath, content):
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
 
 
 if __name__ == "__main__":
