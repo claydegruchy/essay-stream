@@ -1,0 +1,57 @@
+2025-03-17 11:47:33,282 [INFO] API is starting up
+2025-03-17 11:47:33,284 [INFO] Started server process [93724]
+2025-03-17 11:47:33,286 [INFO] Waiting for application startup.
+2025-03-17 11:47:33,286 [INFO] Application startup complete.
+2025-03-17 11:47:40,365 [INFO] Shutting down
+2025-03-17 11:47:40,467 [INFO] Waiting for application shutdown.
+2025-03-17 11:47:40,468 [INFO] Application shutdown complete.
+2025-03-17 11:47:40,468 [INFO] Finished server process [93724]
+2025-03-17 11:47:40,800 [INFO] API is starting up
+2025-03-17 11:47:40,802 [INFO] Started server process [93736]
+2025-03-17 11:47:40,803 [INFO] Waiting for application startup.
+2025-03-17 11:47:40,804 [INFO] Application startup complete.
+2025-03-17 11:48:29,385 [INFO] Shutting down
+2025-03-17 11:48:29,487 [INFO] Waiting for application shutdown.
+2025-03-17 11:48:29,488 [INFO] Application shutdown complete.
+2025-03-17 11:48:29,488 [INFO] Finished server process [93736]
+2025-03-17 11:48:29,908 [INFO] API is starting up
+2025-03-17 11:48:29,910 [INFO] Started server process [93763]
+2025-03-17 11:48:29,912 [INFO] Waiting for application startup.
+2025-03-17 11:48:29,912 [INFO] Application startup complete.
+2025-03-17 11:48:37,397 [INFO] Shutting down
+2025-03-17 11:48:37,499 [INFO] Waiting for application shutdown.
+2025-03-17 11:48:37,500 [INFO] Application shutdown complete.
+2025-03-17 11:48:37,500 [INFO] Finished server process [93763]
+2025-03-17 11:48:37,830 [INFO] API is starting up
+2025-03-17 11:48:37,832 [INFO] Started server process [93775]
+2025-03-17 11:48:37,833 [INFO] Waiting for application startup.
+2025-03-17 11:48:37,834 [INFO] Application startup complete.
+2025-03-17 11:48:48,834 [INFO] (Job(id=0, timestamp=datetime.datetime(2025, 3, 17, 10, 44, 6, 780000, tzinfo=TzInfo(UTC)), filename='string', status='in_queue'),)
+2025-03-17 11:49:05,357 [INFO] Shutting down
+2025-03-17 11:49:05,458 [INFO] Waiting for application shutdown.
+2025-03-17 11:49:05,459 [INFO] Application shutdown complete.
+2025-03-17 11:49:05,459 [INFO] Finished server process [93775]
+2025-03-17 11:49:05,786 [INFO] API is starting up
+2025-03-17 11:49:05,788 [INFO] Started server process [93786]
+2025-03-17 11:49:05,789 [INFO] Waiting for application startup.
+2025-03-17 11:49:05,789 [INFO] Application startup complete.
+2025-03-17 11:49:26,019 [INFO] Shutting down
+2025-03-17 11:49:26,121 [INFO] Waiting for application shutdown.
+2025-03-17 11:49:26,121 [INFO] Application shutdown complete.
+2025-03-17 11:49:26,121 [INFO] Finished server process [93786]
+2025-03-17 11:49:26,431 [INFO] API is starting up
+2025-03-17 11:49:26,433 [INFO] Started server process [93798]
+2025-03-17 11:49:26,434 [INFO] Waiting for application startup.
+2025-03-17 11:49:26,434 [INFO] Application startup complete.
+2025-03-17 11:50:45,066 [INFO] Shutting down
+2025-03-17 11:50:45,167 [INFO] Waiting for application shutdown.
+2025-03-17 11:50:45,168 [INFO] Application shutdown complete.
+2025-03-17 11:50:45,168 [INFO] Finished server process [93798]
+2025-03-17 11:50:45,495 [INFO] API is starting up
+2025-03-17 11:50:45,497 [INFO] Started server process [93816]
+2025-03-17 11:50:45,499 [INFO] Waiting for application startup.
+2025-03-17 11:50:45,499 [INFO] Application startup complete.
+2025-03-17 11:51:00,972 [INFO] Shutting down
+2025-03-17 11:51:01,073 [INFO] Waiting for application shutdown.
+2025-03-17 11:51:01,073 [INFO] Application shutdown complete.
+2025-03-17 11:51:01,074 [INFO] Finished server process [93816]

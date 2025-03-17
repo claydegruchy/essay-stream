@@ -1,21 +1,23 @@
 
-# import argparse
-# import sys
+from models import TTSOptions
 from pathlib import Path
 import os
+import sys
+import argparse
+
 print("Imports done")
 
-base_params = {
-    "model_name": "tts_models/multilingual/multi-dataset/xtts_v2",
-    # "speaker_wav": "samples/Favourite Poems by Derek Jacobi [x4ONi1ROGH8].wav",
-    "speaker_wav": [
+base_params = TTSOptions(
+    model_name="tts_models/multilingual/multi-dataset/xtts_v2",
+    #  "speaker_wav=samples/Favourite Poems by Derek Jacobi [x4ONi1ROGH8].wav",
+    speaker_wav=[
         "samples/derekjacobi_illidad1.wav",
         "samples/derekjacobi_illidad2.wav",
         "samples/derekjacobi_illidad3.wav"
     ],
-    "language_idx": "en",
-    "title": ""
-}
+    language_idx="en",
+    title=""
+)
 
 
 def init_tts():
@@ -33,12 +35,11 @@ def init_tts():
 def run_tts(tts, text, output="out.wav", emotion="neutral"):
     print("tts...", text, output)
 
-    params = {
-        **base_params,
+    params = base_params.model_copy(update={
         "text": text,
         "out_path": output,
         "emotion": emotion
-    }
+    })
 
     # List available 🐸TTS models
     # print(TTS().list_models())
@@ -206,7 +207,20 @@ Here is the text, define the most complex word here: `{question}`
 
 
 def main():
-    filename = "ocr/Narrative-As-Virtual-Reality.pdf"
+
+    parser = argparse.ArgumentParser(description="CLI Tool")
+    parser.add_argument("input", help="Input file")
+    parser.add_argument("-o", "--output", help="Output file")
+    parser.add_argument("-u", "--uppercase", action="store_true",
+                        help="Convert text to uppercase")
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.input):
+        print(f"Error: {args.input} not found", file=sys.stderr)
+        sys.exit(1)
+
+    filename = args.input
     job_title = Path(filename).stem
     path = prep_job(job_title)
     # output making
@@ -218,17 +232,12 @@ def main():
     # return
     # document parsing
     parsed_text = read_document(filename, path)
-    # print(len(doc))
-    # doc = doc[start_page:end_page+1]
-
-    # print(''.join(doc))
 
     # tts systems
-
-    # start_position = 0
-    # end_position = len(parsed_text)-1
-    start_position = 2500
-    end_position = start_position+4
+    start_position = 0
+    end_position = len(parsed_text)-1
+    # start_position = 2500
+    # end_position = start_position+4
 
     # return
     # parsed_text = parsed_text[3001:3010]
@@ -249,25 +258,12 @@ def main():
 
     return
 # other shit for running later
-    parser = argparse.ArgumentParser(description="CLI Tool")
-    parser.add_argument("input", help="Input file")
-    parser.add_argument("-o", "--output", help="Output file")
-    parser.add_argument("-u", "--uppercase", action="store_true",
-                        help="Convert text to uppercase")
-
-    args = parser.parse_args()
-
-    if not os.path.exists(args.input):
-        print(f"Error: {args.input} not found", file=sys.stderr)
-        sys.exit(1)
 
     content = read_file(args.input)
 
     if args.output:
         write_file(args.output, content)
         return
-
-    parse(content)
 
 
 def read_file(filepath):
