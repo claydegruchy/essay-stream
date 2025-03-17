@@ -7,22 +7,26 @@ print("Imports done")
 
 base_params = {
     "model_name": "tts_models/multilingual/multi-dataset/xtts_v2",
-    "speaker_wav": "samples/Favourite Poems by Derek Jacobi [x4ONi1ROGH8].wav",
+    # "speaker_wav": "samples/Favourite Poems by Derek Jacobi [x4ONi1ROGH8].wav",
+    "speaker_wav": [
+        "samples/derekjacobi_illidad1.wav",
+        "samples/derekjacobi_illidad2.wav",
+        "samples/derekjacobi_illidad3.wav"
+    ],
     "language_idx": "en",
     "title": ""
 }
 
 
-tts = None
-
-
 def init_tts():
+    print("Init TTS")
     print("Starting imports")
     from TTS.api import TTS
     import torch
     print("Get device")
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print("Init TTS")
+    print("Attaching model to device")
+
     return TTS(base_params["model_name"]).to(device)
 
 
@@ -42,6 +46,7 @@ def run_tts(tts, text, output="out.wav", emotion="neutral"):
     print("Run TTS")
     # Text to speech to a file
     tts.tts_to_file(
+
         text=text,
         speaker_wav=params["speaker_wav"],
         language=params["language_idx"],
@@ -189,7 +194,7 @@ def get_last_file(job_title):
     return None  # 否 files found
 
 
-def ask_definition(string, hf=init_llm()):
+def ask_definition(string, hf):
     print("ask_definition")
     template = """You are part of a TTS system. You will be given a chunk of text and your job is to help the user understand the definition of complex words.
 When you recieve text, assess which word in the sentence is the most complicated, then give the defintion for that word.
@@ -232,11 +237,12 @@ def main():
     if (last and last > start_position and last < end_position):
         print("resuming from last position", last)
         start_position = last
-    i = start_position
     print("Processing", len(parsed_text[start_position:end_position]), "items")
     # return
     tts = init_tts()
+    i = start_position
     for text in parsed_text[start_position:end_position]:
+        i += 1
         print("Running slice", i)
         run_tts(tts=tts, text=text,
                 output="{path}/{i}.wav".format(i=i, path=path))
